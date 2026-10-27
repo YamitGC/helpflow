@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: helpflow-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: helpflow_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d helpflow_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - helpflow-network
+
+  technician-dispatch-service:
+    build:
+      context: .
+      dockerfile: technician-dispatch-service/Dockerfile
+    container_name: technician-dispatch-service
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      SERVER_PORT: 8081
+    networks:
+      - helpflow-network
+
+  support-ticket-service:
+    build:
+      context: .
+      dockerfile: support-ticket-service/Dockerfile
+    container_name: support-ticket-service
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/helpflow_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgrespassword
+      TECHNICIAN_DISPATCH_URL: http://technician-dispatch-service:8081
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    depends_on:
+      db:
+        condition: service_healthy
+      technician-dispatch-service:
+        condition: service_started
+    networks:
+      - helpflow-network
+
+volumes:
+  postgres_data:
+
+networks:
+  helpflow-network:
+    driver: bridge

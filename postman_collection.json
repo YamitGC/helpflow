@@ -1,0 +1,190 @@
+{
+  "info": {
+    "name": "HelpFlow API Collection",
+    "description": "Colección completa de pruebas para el Sistema HelpFlow (Auth, Tickets, Técnicos y Dispatch)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "dispatchUrl", "value": "http://localhost:8081" },
+    { "key": "adminToken", "value": "" },
+    { "key": "userToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Dispatch Service (Puerto 8081)",
+      "item": [
+        {
+          "name": "Solicitar Disponibilidad Técnica",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ticketId\": 125,\n  \"categoria\": \"RED\",\n  \"prioridad\": \"ALTA\"\n}"
+            },
+            "url": { "raw": "{{dispatchUrl}}/technician-dispatch", "host": ["{{dispatchUrl}}"], "path": ["technician-dispatch"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Autenticación y Usuarios",
+      "item": [
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('adminToken', jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"admin@helpflow.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login Usuario Regular",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('userToken', jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"carlos.perez@helpflow.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Registrar Nuevo Usuario",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documento\": \"1005\",\n  \"nombre\": \"Diana Torres\",\n  \"correo\": \"diana.torres@helpflow.com\",\n  \"password\": \"secret123\",\n  \"sede\": \"Medellin\",\n  \"area\": \"Talento Humano\",\n  \"rol\": \"ROLE_USUARIO\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Gestión de Tickets",
+      "item": [
+        {
+          "name": "Crear Ticket (Usuario)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{userToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Falla en la red del piso 3\",\n  \"descripcion\": \"No hay conexión a internet por cable ni wifi\",\n  \"categoria\": \"RED\",\n  \"prioridad\": \"ALTA\",\n  \"sede\": \"Medellin\",\n  \"activoAfectado\": \"SW-PISO3\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/tickets", "host": ["{{baseUrl}}"], "path": ["tickets"] }
+          }
+        },
+        {
+          "name": "Listar Tickets Paginados",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/tickets?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Consultar Detalle e Historial de Ticket",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": { "raw": "{{baseUrl}}/tickets/1", "host": ["{{baseUrl}}"], "path": ["tickets", "1"] }
+          }
+        },
+        {
+          "name": "Actualizar Estado con Observaciones",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nuevoEstado\": \"EN_PROGRESO\",\n  \"observaciones\": \"Técnico en sitio revisando el switch principal\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/tickets/1/status", "host": ["{{baseUrl}}"], "path": ["tickets", "1", "status"] }
+          }
+        },
+        {
+          "name": "Disparar Escalamiento SLA",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/tickets/escalate-check", "host": ["{{baseUrl}}"], "path": ["tickets", "escalate-check"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Observabilidad y Métricas",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/actuator/health", "host": ["{{baseUrl}}"], "path": ["actuator", "health"] }
+          }
+        },
+        {
+          "name": "Métricas de Negocio Actuator",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/actuator/metrics", "host": ["{{baseUrl}}"], "path": ["actuator", "metrics"] }
+          }
+        },
+        {
+          "name": "Prometheus Metrics",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/actuator/prometheus", "host": ["{{baseUrl}}"], "path": ["actuator", "prometheus"] }
+          }
+        }
+      ]
+    }
+  ]
+}
