@@ -105,3 +105,4 @@ class OtherPersistenceAdaptersTest {
         assertEquals(1, ticketRepositoryAdapter.findTicketsNearingSlaBreach().size());
     }
 }
+
