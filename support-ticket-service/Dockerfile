@@ -22,3 +22,4 @@ COPY --from=build /app/support-ticket-service/target/*.jar app.jar
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
+

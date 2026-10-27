@@ -29,5 +29,6 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <jjwt.version>0.12.6</jjwt.version>
         <springdoc.version>2.8.5</springdoc.version>
+        <jacoco.version>0.8.13</jacoco.version>
     </properties>
 </project>

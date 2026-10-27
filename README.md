@@ -165,3 +165,4 @@ docker compose up --build
 - `helpflow_ticket_resolution_duration`: Temporizador hasta la resolución del ticket.
 - `helpflow_tickets_expired_total`: Contador de tickets vencidos fuera del SLA.
 - `helpflow_auth_failures_total` & `helpflow_access_denied_total`: Seguridad y auditoría.
+
