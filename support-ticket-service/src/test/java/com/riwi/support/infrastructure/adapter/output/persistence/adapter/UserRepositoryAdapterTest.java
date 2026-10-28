@@ -65,11 +65,28 @@ class UserRepositoryAdapterTest {
         when(jpaUserRepository.findById(1L)).thenReturn(Optional.of(userEntity));
         when(userMapper.toDomain(userEntity)).thenReturn(userDomain);
         when(jpaUserRepository.findByCorreo("adapter@helpflow.com")).thenReturn(Optional.of(userEntity));
-        when(userMapper.toDomain(userEntity)).thenReturn(userDomain);
+        when(jpaUserRepository.findByDocumento("999")).thenReturn(Optional.of(userEntity));
         when(jpaUserRepository.existsByCorreo("adapter@helpflow.com")).thenReturn(true);
+        when(jpaUserRepository.existsByDocumento("999")).thenReturn(true);
 
         assertTrue(userRepositoryAdapter.findById(1L).isPresent());
         assertTrue(userRepositoryAdapter.findByCorreo("adapter@helpflow.com").isPresent());
+        assertTrue(userRepositoryAdapter.findByDocumento("999").isPresent());
         assertTrue(userRepositoryAdapter.existsByCorreo("adapter@helpflow.com"));
+        assertTrue(userRepositoryAdapter.existsByDocumento("999"));
+    }
+
+    @Test
+    @DisplayName("Debe listar todos los usuarios y filtrar por rol")
+    void shouldFindAllAndFindByRol() {
+        when(jpaUserRepository.findAll()).thenReturn(List.of(userEntity));
+        when(userMapper.toDomain(userEntity)).thenReturn(userDomain);
+        when(jpaUserRepository.findByRol(Role.ROLE_USUARIO)).thenReturn(List.of(userEntity));
+
+        List<User> all = userRepositoryAdapter.findAll();
+        assertEquals(1, all.size());
+
+        List<User> byRole = userRepositoryAdapter.findByRol(Role.ROLE_USUARIO);
+        assertEquals(1, byRole.size());
     }
 }

@@ -1,10 +1,15 @@
 package com.riwi.support.domain.model;
 
+import com.riwi.support.domain.exception.AccessDeniedDomainException;
+import com.riwi.support.domain.exception.BusinessRuleException;
+import com.riwi.support.domain.exception.InvalidStateTransitionException;
+import com.riwi.support.domain.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -44,12 +49,35 @@ class DomainLogicTest {
         assertTrue(ticketFuturo.isProximoAVencer(5));
         assertFalse(ticketFuturo.isProximoAVencer(2));
 
-        // Ticket vencido
+        // Ticket vencido sin resolución
         Ticket ticketPasado = Ticket.builder()
                 .fechaLimiteSla(ahora.minusHours(1))
                 .estado(TicketStatus.ASIGNADO)
                 .build();
         assertTrue(ticketPasado.isVencido());
+
+        // Ticket resuelto a tiempo vs fuera de tiempo
+        Ticket ticketResueltoATiempo = Ticket.builder()
+                .fechaLimiteSla(ahora.plusHours(2))
+                .fechaResolucion(ahora.plusHours(1))
+                .estado(TicketStatus.RESUELTO)
+                .build();
+        assertFalse(ticketResueltoATiempo.isVencido());
+        assertFalse(ticketResueltoATiempo.isProximoAVencer(5)); // Resuelto no aplica proximo a vencer
+
+        Ticket ticketResueltoTarde = Ticket.builder()
+                .fechaLimiteSla(ahora.minusHours(2))
+                .fechaResolucion(ahora.minusHours(1))
+                .estado(TicketStatus.RESUELTO)
+                .build();
+        assertTrue(ticketResueltoTarde.isVencido());
+
+        // Ticket cerrado o cancelado no debe ser proximo a vencer
+        Ticket ticketCerrado = Ticket.builder().fechaLimiteSla(ahora.plusHours(1)).estado(TicketStatus.CERRADO).build();
+        assertFalse(ticketCerrado.isProximoAVencer(5));
+
+        Ticket ticketCancelado = Ticket.builder().fechaLimiteSla(ahora.plusHours(1)).estado(TicketStatus.CANCELADO).build();
+        assertFalse(ticketCancelado.isProximoAVencer(5));
 
         // Ticket sin fecha de SLA
         Ticket ticketSinSla = Ticket.builder().build();
@@ -69,6 +97,10 @@ class DomainLogicTest {
         assertTrue(tech.isEspecialidadCompatible(TicketCategory.RED));
         assertFalse(tech.isEspecialidadCompatible(TicketCategory.HARDWARE));
 
+        // Especialidad nula
+        tech.setEspecialidad(null);
+        assertFalse(tech.isEspecialidadCompatible(TicketCategory.RED));
+
         User user = User.builder()
                 .estado(UserStatus.ACTIVO)
                 .build();
@@ -76,6 +108,22 @@ class DomainLogicTest {
 
         user.setEstado(UserStatus.INACTIVO);
         assertFalse(user.isActivo());
+    }
+
+    @Test
+    @DisplayName("Valida constructores de excepciones de dominio")
+    void testDomainExceptions() {
+        AccessDeniedDomainException ex1 = new AccessDeniedDomainException("Acceso denegado");
+        assertEquals("Acceso denegado", ex1.getMessage());
+
+        ResourceNotFoundException ex2 = new ResourceNotFoundException("No encontrado");
+        assertEquals("No encontrado", ex2.getMessage());
+
+        BusinessRuleException ex3 = new BusinessRuleException("Regla");
+        assertEquals("Regla", ex3.getMessage());
+
+        InvalidStateTransitionException ex4 = new InvalidStateTransitionException("Transición");
+        assertEquals("Transición", ex4.getMessage());
     }
 }
 

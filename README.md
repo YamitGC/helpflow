@@ -118,6 +118,13 @@ Las contraseñas de los usuarios semilla están cifradas con BCrypt (`admin123`)
 
 ## 🚀 Instrucciones de Ejecución
 
+### ⚙️ Variables de Entorno (.env)
+El proyecto incluye una plantilla `.env.example`. Para personalizar puertos o credenciales:
+```bash
+cp .env.example .env
+```
+*(Nota: El archivo `.env` está en `.gitignore` para no exponer secretos en GitHub).*
+
 ### Opción 1: Con Docker Compose (Recomendada)
 Para levantar todo el ecosistema (PostgreSQL en `5433`, Dispatch en `8081` y Support en `8080`):
 
@@ -142,6 +149,24 @@ docker compose up --build
    cd support-ticket-service
    mvn spring-boot:run
    ```
+
+---
+
+## 🧪 Pruebas Unitarias y Cobertura de Código (JaCoCo)
+
+Para ejecutar todas las pruebas automatizadas y generar los reportes de JaCoCo:
+
+```bash
+mvn test
+```
+
+### Resultados de Cobertura:
+- **`support-ticket-service`**: **95%** de cobertura en instrucciones (40 clases analizadas).
+- **`technician-dispatch-service`**: **89%** de cobertura en instrucciones.
+
+Los reportes HTML generados se encuentran en:
+- `support-ticket-service/target/site/jacoco/index.html`
+- `technician-dispatch-service/target/site/jacoco/index.html`
 
 ---
 

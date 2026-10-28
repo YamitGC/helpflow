@@ -109,7 +109,7 @@ class RestControllersUnitTest {
     }
 
     @Test
-    @DisplayName("TechnicianController: register y list")
+    @DisplayName("TechnicianController: register, list y getById")
     void testTechnicianController() {
         TechnicianRequest req = new TechnicianRequest("TEC-1", "Tech", "t@h.com", BigDecimal.TEN, LocalDate.now(), "RED", "Med", 5);
         Technician tech = Technician.builder().id(1L).documento("TEC-1").build();
@@ -124,10 +124,15 @@ class RestControllersUnitTest {
         when(manageTechnicianUseCase.getAll()).thenReturn(List.of(tech));
         ResponseEntity<PageResponse<TechnicianResponse>> paged = technicianController.getAllTechnicians(0, 10);
         assertEquals(1, paged.getBody().getTotalElements());
+
+        when(manageTechnicianUseCase.getById(1L)).thenReturn(tech);
+        ResponseEntity<TechnicianResponse> byId = technicianController.getTechnicianById(1L);
+        assertEquals(HttpStatus.OK, byId.getStatusCode());
+        assertEquals(resp, byId.getBody());
     }
 
     @Test
-    @DisplayName("TicketController: create, assign, status y escalate")
+    @DisplayName("TicketController: create, assign, status, list, getById y escalate")
     void testTicketController() {
         CreateTicketRequest createReq = new CreateTicketRequest("Titulo", "Desc", TicketCategory.RED, TicketPriority.ALTA, "Sede", "Activo");
         Ticket ticket = Ticket.builder().id(10L).build();
@@ -150,6 +155,18 @@ class RestControllersUnitTest {
         when(manageTicketUseCase.updateTicketStatus(10L, TicketStatus.EN_PROGRESO, "Obs", 1L)).thenReturn(ticket);
         ResponseEntity<TicketResponse> statusRes = ticketController.updateStatus(10L, statusReq, userDetails);
         assertEquals(HttpStatus.OK, statusRes.getStatusCode());
+
+        // List
+        when(manageTicketUseCase.getTicketsForCurrentUser(1L, true, false)).thenReturn(List.of(ticket));
+        ResponseEntity<PageResponse<TicketResponse>> listRes = ticketController.getTickets(0, 10, userDetails);
+        assertEquals(HttpStatus.OK, listRes.getStatusCode());
+        assertEquals(1, listRes.getBody().getContent().size());
+
+        // Get by ID
+        when(manageTicketUseCase.getTicketById(10L, 1L, true)).thenReturn(ticket);
+        ResponseEntity<TicketResponse> byIdRes = ticketController.getTicketById(10L, userDetails);
+        assertEquals(HttpStatus.OK, byIdRes.getStatusCode());
+        assertEquals(ticketResp, byIdRes.getBody());
 
         // Escalate trigger
         ResponseEntity<String> escRes = ticketController.triggerEscalation();

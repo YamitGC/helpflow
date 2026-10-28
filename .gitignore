@@ -4,6 +4,16 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Variables de entorno sensibles
+.env
+.env.local
+*.env
+!*.env.example
+
+# Archivos comprimidos / binarios
+*.zip
+*.tar.gz
+
 ### STS ###
 .apt_generated
 .classpath

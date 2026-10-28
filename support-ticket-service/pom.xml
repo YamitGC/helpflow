@@ -165,6 +165,7 @@
                         <exclude>**/entity/**</exclude>
                         <exclude>**/mapper/*Impl.class</exclude>
                         <exclude>**/security/OpenApiConfig.class</exclude>
+                        <exclude>**/security/SecurityConfig.class</exclude>
                         <exclude>**/SupportTicketApplication.class</exclude>
                     </excludes>
                 </configuration>

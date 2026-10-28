@@ -6,15 +6,15 @@ services:
     container_name: helpflow-postgres
     restart: always
     environment:
-      POSTGRES_DB: helpflow_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: ${POSTGRES_DB:-helpflow_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgrespassword}
     ports:
-      - "5433:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d helpflow_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-helpflow_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -28,9 +28,9 @@ services:
     container_name: technician-dispatch-service
     restart: always
     ports:
-      - "8081:8081"
+      - "${TECHNICIAN_DISPATCH_PORT:-8081}:8081"
     environment:
-      SERVER_PORT: 8081
+      SERVER_PORT: ${TECHNICIAN_DISPATCH_PORT:-8081}
     networks:
       - helpflow-network
 
@@ -41,13 +41,13 @@ services:
     container_name: support-ticket-service
     restart: always
     ports:
-      - "8080:8080"
+      - "${SUPPORT_SERVICE_PORT:-8080}:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/helpflow_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgrespassword
-      TECHNICIAN_DISPATCH_URL: http://technician-dispatch-service:8081
-      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-helpflow_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgrespassword}
+      TECHNICIAN_DISPATCH_URL: ${TECHNICIAN_DISPATCH_URL:-http://technician-dispatch-service:8081}
+      JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
     depends_on:
       db:
         condition: service_healthy
@@ -62,4 +62,3 @@ volumes:
 networks:
   helpflow-network:
     driver: bridge
-

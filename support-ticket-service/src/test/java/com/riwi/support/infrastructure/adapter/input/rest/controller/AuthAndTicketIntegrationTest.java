@@ -2,13 +2,9 @@ package com.riwi.support.infrastructure.adapter.input.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.riwi.support.domain.model.Role;
-import com.riwi.support.domain.model.TicketCategory;
-import com.riwi.support.domain.model.TicketPriority;
-import com.riwi.support.domain.model.TicketStatus;
 import com.riwi.support.domain.model.User;
 import com.riwi.support.domain.model.UserStatus;
 import com.riwi.support.domain.port.output.UserRepositoryPort;
-import com.riwi.support.infrastructure.adapter.input.rest.dto.request.CreateTicketRequest;
 import com.riwi.support.infrastructure.adapter.input.rest.dto.request.LoginRequest;
 import com.riwi.support.infrastructure.adapter.input.rest.dto.request.RegisterRequest;
 import com.riwi.support.infrastructure.security.JwtTokenProvider;
@@ -21,20 +17,40 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Testcontainers(disabledWithoutDocker = true)
 @SpringBootTest
 @AutoConfigureMockMvc
 class AuthAndTicketIntegrationTest {
+
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
+            .withDatabaseName("helpflow_db")
+            .withUsername("postgres")
+            .withPassword("postgrespassword");
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        if (postgres.isRunning()) {
+            registry.add("spring.datasource.url", postgres::getJdbcUrl);
+            registry.add("spring.datasource.username", postgres::getUsername);
+            registry.add("spring.datasource.password", postgres::getPassword);
+        }
+    }
 
     @Autowired
     private MockMvc mockMvc;
