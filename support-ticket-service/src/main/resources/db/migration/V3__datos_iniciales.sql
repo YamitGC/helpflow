@@ -1,11 +1,11 @@
 -- V3: Datos semilla de prueba (Usuarios y Técnicos de demostración)
--- Contraseña cifrada con BCrypt para 'admin123' y 'user123': $2a$10$wT5gQ9/yD7iM7.lFw6bLwOP8gL9m9.7UuE576B3U1xJ6aJ9xXmC1m
+-- Contraseña verificada con BCrypt para 'admin123': $2a$10$AvSkEwnGTKt3olQQWYp0TONjqoO0GTpYLvHs3rZ1Bmxe.OkfFByRi
 
 INSERT INTO users (documento, nombre, correo, password, sede, area, rol, estado) VALUES
-('1001', 'Administrador General', 'admin@helpflow.com', '$2a$10$hKDVYxLefVHV/vtuPhWD3OigtSDzxJTXGZZ88vI4WvyQ9rO.6tM2.', 'Medellin', 'TI Infraestructura', 'ROLE_ADMIN', 'ACTIVO'),
-('1002', 'Carlos Perez', 'carlos.perez@helpflow.com', '$2a$10$hKDVYxLefVHV/vtuPhWD3OigtSDzxJTXGZZ88vI4WvyQ9rO.6tM2.', 'Medellin', 'Operaciones', 'ROLE_USUARIO', 'ACTIVO'),
-('1003', 'Laura Gomez', 'laura.gomez@helpflow.com', '$2a$10$hKDVYxLefVHV/vtuPhWD3OigtSDzxJTXGZZ88vI4WvyQ9rO.6tM2.', 'Bogota', 'Finanzas', 'ROLE_USUARIO', 'ACTIVO'),
-('1004', 'Usuario Inactivo', 'inactivo@helpflow.com', '$2a$10$hKDVYxLefVHV/vtuPhWD3OigtSDzxJTXGZZ88vI4WvyQ9rO.6tM2.', 'Cali', 'Logística', 'ROLE_USUARIO', 'INACTIVO');
+('1001', 'Administrador General', 'admin@helpflow.com', '$2a$10$AvSkEwnGTKt3olQQWYp0TONjqoO0GTpYLvHs3rZ1Bmxe.OkfFByRi', 'Medellin', 'TI Infraestructura', 'ROLE_ADMIN', 'ACTIVO'),
+('1002', 'Carlos Perez', 'carlos.perez@helpflow.com', '$2a$10$AvSkEwnGTKt3olQQWYp0TONjqoO0GTpYLvHs3rZ1Bmxe.OkfFByRi', 'Medellin', 'Operaciones', 'ROLE_USUARIO', 'ACTIVO'),
+('1003', 'Laura Gomez', 'laura.gomez@helpflow.com', '$2a$10$AvSkEwnGTKt3olQQWYp0TONjqoO0GTpYLvHs3rZ1Bmxe.OkfFByRi', 'Bogota', 'Finanzas', 'ROLE_USUARIO', 'ACTIVO'),
+('1004', 'Usuario Inactivo', 'inactivo@helpflow.com', '$2a$10$AvSkEwnGTKt3olQQWYp0TONjqoO0GTpYLvHs3rZ1Bmxe.OkfFByRi', 'Cali', 'Logística', 'ROLE_USUARIO', 'INACTIVO');
 
 INSERT INTO technicians (documento, nombre, correo, salario, fecha_afiliacion, especialidad, sede, estado, max_tickets_activos) VALUES
 ('TEC-001', 'Mateo Redes', 'mateo.redes@helpflow.com', 3500000.00, '2023-01-15', 'RED', 'Medellin', 'ACTIVO', 5),
